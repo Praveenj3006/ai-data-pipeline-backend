@@ -11,8 +11,7 @@ app = FastAPI()
 
 # ✅ CORS Setup — allows frontend to connect
 origins = [
-    "https://joyful-monstera-82c402.netlify.app",  # ✅ New Netlify frontend
-    "https://relaxed-gecko-0dea3a.netlify.app",     # (Optional: keep previous if you want)
+    "https://golden-creponne-8923c5.netlify.app",  # ✅ Your latest frontend domain
     "http://localhost:8081",
     "http://127.0.0.1:8081"
 ]
