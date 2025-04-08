@@ -11,9 +11,9 @@ app = FastAPI()
 
 # ✅ CORS Setup — allows frontend to connect
 origins = [
-    "https://heartfelt-dasik-20e369.netlify.app",   # Your old site
-    "https://relaxed-gecko-0dea3a.netlify.app",     # ✅ NEW Netlify site (the one giving error)
-    "http://localhost:8081",                        # Optional: Local testing
+    "https://joyful-monstera-82c402.netlify.app",  # ✅ New Netlify frontend
+    "https://relaxed-gecko-0dea3a.netlify.app",     # (Optional: keep previous if you want)
+    "http://localhost:8081",
     "http://127.0.0.1:8081"
 ]
 
