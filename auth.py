@@ -16,7 +16,7 @@ SECRET_KEY = "your_secret_key"
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # 🛡️ OAuth2 scheme — expects POST to /token
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 # 📦 Auth router
 auth_router = APIRouter()
