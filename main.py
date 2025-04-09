@@ -9,16 +9,16 @@ from models import User
 
 app = FastAPI()
 
-# ✅ CORS Setup — allows frontend to connect
+# ✅ CORS Setup — explicitly allow Netlify frontend
 origins = [
-    "http://localhost:8081",  # Local frontend (if served)
+    "https://splendorous-biscochitos-6aa38f.netlify.app",  # ✅ Your deployed frontend
+    "http://localhost:8081",  # Optional: for local development
     "http://127.0.0.1:8081",
-    "*",  # Allow all origins during development
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=origins,  # Don't use ["*"] in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
