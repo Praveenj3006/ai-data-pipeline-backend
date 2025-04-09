@@ -54,7 +54,9 @@ def read_users_me(
     raise HTTPException(status_code=404, detail="User not found")
 
 @app.get("/init")
-def manual_init():
-    init_db()
-    return {"message": "Database initialized"}
+def init_tables():
+    from database import Base, engine
+    Base.metadata.create_all(bind=engine)
+    return {"message": "Tables created!"}
+
 
