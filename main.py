@@ -13,11 +13,10 @@ app = FastAPI()
 
 # ✅ CORS Setup — explicitly allow Netlify frontend
 origins = [
-    "https://deluxe-churros-d93fea.netlify.app",  # ✅ NEW Netlify URL
-    "http://localhost:8081",  # optional for dev
-    "http://127.0.0.1:8081"
+    "https://deluxe-churros-d93fea.netlify.app",  # ✅ your new frontend
+    "http://localhost:8081",
+    "http://127.0.0.1:8081",
 ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # Don't use ["*"] in production
