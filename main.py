@@ -6,6 +6,8 @@ from auth import auth_router, get_current_user, get_db
 from pipeline import pipeline_router
 from database import init_db
 from models import User
+from models import Base  # Make sure Base is imported
+from database import engine  # Import the engine used for your DB
 
 app = FastAPI()
 
@@ -55,7 +57,6 @@ def read_users_me(
 
 @app.get("/init")
 def init_tables():
-    from database import Base, engine
     Base.metadata.create_all(bind=engine)
     return {"message": "Tables created!"}
 
