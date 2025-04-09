@@ -52,3 +52,9 @@ def read_users_me(
             "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S")
         }
     raise HTTPException(status_code=404, detail="User not found")
+
+@app.get("/init")
+def manual_init():
+    init_db()
+    return {"message": "Database initialized"}
+
