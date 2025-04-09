@@ -1,21 +1,19 @@
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from models import Base
 
-# ✅ Load the DATABASE_URL from environment variable
-DATABASE_URL = os.getenv("DATABASE_URL")
+# 🔧 Replace with your actual DB URL if needed
+DATABASE_URL = "postgresql://postgres:password@postgres_db:5432/data_pipeline"
 
-# ✅ Create SQLAlchemy engine
+# 🌐 Create engine + session
 engine = create_engine(DATABASE_URL)
-
-# ✅ Create a configured "Session" class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# ✅ Base class for models
+# 📦 Base class for models
 Base = declarative_base()
 
-# ✅ Dependency to get DB session
+# ✅ Dependency for getting DB session (used in FastAPI routes)
 def get_db():
     db = SessionLocal()
     try:
@@ -23,7 +21,5 @@ def get_db():
     finally:
         db.close()
 
-# ✅ Optional: call this during app startup to ensure tables are created
 def init_db():
-    from models import User, Pipeline  # Import models here to register them with Base
     Base.metadata.create_all(bind=engine)

@@ -11,11 +11,10 @@ app = FastAPI()
 
 # ✅ CORS Setup — allows frontend to connect
 origins = [
-    "https://golden-creponne-8923c5.netlify.app",  # ✅ Your latest frontend domain
-    "http://localhost:8081",
-    "http://127.0.0.1:8081"
+    "http://localhost:8081",  # Local frontend (if served)
+    "http://127.0.0.1:8081",
+    "*",  # Allow all origins during development
 ]
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -53,14 +52,3 @@ def read_users_me(
             "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S")
         }
     raise HTTPException(status_code=404, detail="User not found")
-
-# ✅ Optional: Swagger expects this if tokenUrl is "token"
-from auth import login
-
-@app.post("/token")
-async def login_alias(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
-):
-    return await login(form_data, db)
-
