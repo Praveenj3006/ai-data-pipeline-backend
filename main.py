@@ -9,7 +9,12 @@ from models import User
 from models import Base  # Make sure Base is imported
 from database import engine  # Import the engine used for your DB
 
-app = FastAPI()
+app = FastAPI(
+  title="AI Data Pipeline API",
+    docs_url="/docs",            # enables Swagger UI
+    redoc_url="/redoc",          # optional
+    openapi_url="/openapi.json"  # optional
+    )
 
 # ✅ CORS Setup — explicitly allow Netlify frontend
 origins = [
