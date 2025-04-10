@@ -1,12 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from auth import auth_router, get_current_user, get_db
 from pipeline import pipeline_router
-from database import init_db
-from models import User, Base
-from database import engine
+from database import init_db, engine
+from models import Base, User
 
 app = FastAPI(
     title="AI Data Pipeline API",
@@ -15,9 +13,9 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
-# ✅ CORS setup
+# ✅ CORS
 origins = [
-    "https://deluxe-churros-d93fea.netlify.app",  # your frontend
+    "https://deluxe-churros-d93fea.netlify.app",
     "http://localhost:8081",
     "http://127.0.0.1:8081",
 ]
@@ -29,21 +27,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Initialize DB on startup
+# ✅ DB initialization
 @app.on_event("startup")
 def on_startup():
     init_db()
 
-# ✅ Include auth and pipeline routers
+# ✅ Routes
 app.include_router(auth_router, prefix="", tags=["Auth"])
 app.include_router(pipeline_router, prefix="", tags=["Pipelines"])
 
-# ✅ Home endpoint
+# ✅ Home route
 @app.get("/")
 def home():
     return {"message": "Welcome to AI Data Pipeline API"}
 
-# ✅ Authenticated user profile
+# ✅ /init route to create tables manually if needed
+@app.get("/init")
+def init_tables():
+    Base.metadata.create_all(bind=engine)
+    return {"message": "Tables created!"}
+
+# ✅ /me - check token
 @app.get("/me")
 def read_users_me(
     current_user: str = Depends(get_current_user),
@@ -57,9 +61,3 @@ def read_users_me(
             "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S")
         }
     raise HTTPException(status_code=404, detail="User not found")
-
-# ✅ Manual table init (optional fallback)
-@app.get("/init")
-def init_tables():
-    Base.metadata.create_all(bind=engine)
-    return {"message": "Tables created!"}

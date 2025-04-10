@@ -8,20 +8,20 @@ import datetime
 from models import User
 from database import SessionLocal
 
-# 🔐 Secret & algorithm
-SECRET_KEY = "your_secret_key"  # Replace with a strong value in prod
+# 🔐 Secret key + algorithm
+SECRET_KEY = "your_secret_key"  # Replace this in production
 ALGORITHM = "HS256"
 
-# 🔐 Password hashing
+# 🔐 Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# 🛡️ OAuth2 token handler
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token", auto_error=False)
+# 🛡️ OAuth2 bearer token handler — FIXED tokenUrl to /login
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
-# 📦 Auth Router
+# 📦 Router
 auth_router = APIRouter()
 
-# 📌 DB Session Dependency
+# 📌 DB session dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -29,7 +29,7 @@ def get_db():
     finally:
         db.close()
 
-# ✅ Current user from token
+# ✅ Get current user from JWT token
 def get_current_user(token: str = Depends(oauth2_scheme)):
     if not token:
         raise HTTPException(status_code=401, detail="Token missing")
@@ -45,7 +45,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# ✅ Signup
+# ✅ Signup route
 @auth_router.post("/signup")
 def signup(username: str, password: str, email: str, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter((User.username == username) | (User.email == email)).first()
@@ -59,8 +59,8 @@ def signup(username: str, password: str, email: str, db: Session = Depends(get_d
     db.refresh(user)
     return {"message": "User created successfully"}
 
-# ✅ Token Login (aligned with OAuth2)
-@auth_router.post("/token")
+# ✅ Login route
+@auth_router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == form_data.username).first()
 
