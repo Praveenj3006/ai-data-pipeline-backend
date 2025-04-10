@@ -4,8 +4,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from auth import auth_router, get_current_user, get_db
 from pipeline import pipeline_router
-from database import init_db, engine
+from database import init_db
 from models import User, Base
+from database import engine
 
 app = FastAPI(
     title="AI Data Pipeline API",
@@ -14,11 +15,11 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
-# ✅ CORS Setup
+# ✅ CORS setup
 origins = [
-    "https://deluxe-churros-d93fea.netlify.app",
+    "https://deluxe-churros-d93fea.netlify.app",  # your frontend
     "http://localhost:8081",
-    "http://127.0.0.1:8081"
+    "http://127.0.0.1:8081",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -28,24 +29,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Initialize DB at startup
+# ✅ Initialize DB on startup
 @app.on_event("startup")
 def on_startup():
-    try:
-        init_db()
-    except Exception as e:
-        print("DB Init failed:", e)
+    init_db()
 
-# ✅ Health check
+# ✅ Include auth and pipeline routers
+app.include_router(auth_router, prefix="", tags=["Auth"])
+app.include_router(pipeline_router, prefix="", tags=["Pipelines"])
+
+# ✅ Home endpoint
 @app.get("/")
 def home():
     return {"message": "Welcome to AI Data Pipeline API"}
 
-# ✅ Register Auth and Pipeline routers
-app.include_router(auth_router, tags=["Auth"])
-app.include_router(pipeline_router, tags=["Pipelines"])
-
-# ✅ Get logged-in user profile
+# ✅ Authenticated user profile
 @app.get("/me")
 def read_users_me(
     current_user: str = Depends(get_current_user),
@@ -60,7 +58,7 @@ def read_users_me(
         }
     raise HTTPException(status_code=404, detail="User not found")
 
-# ✅ Temporary endpoint to ensure tables are created
+# ✅ Manual table init (optional fallback)
 @app.get("/init")
 def init_tables():
     Base.metadata.create_all(bind=engine)
