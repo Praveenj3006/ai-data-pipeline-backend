@@ -1,3 +1,4 @@
+from fastapi.openapi.utils import get_openapi
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -61,3 +62,28 @@ def read_users_me(
             "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S")
         }
     raise HTTPException(status_code=404, detail="User not found")
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="AI Data Pipeline API",
+        version="1.0.0",
+        description="Your FastAPI backend for managing AI data pipelines",
+        routes=app.routes,
+    )
+    openapi_schema["components"]["securitySchemes"] = {
+        "OAuth2PasswordBearer": {
+            "type": "oauth2",
+            "flows": {
+                "password": {
+                    "tokenUrl": "/login",
+                    "scopes": {}
+                }
+            }
+        }
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
