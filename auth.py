@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -8,20 +8,18 @@ import datetime
 from models import User
 from database import SessionLocal
 
-# 🔐 Secret key + algorithm
-SECRET_KEY = "your_secret_key"  # Replace this in production
+# JWT config
+SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
 
-# 🔐 Password hashing context
+# Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# 🛡️ OAuth2 bearer token handler — FIXED tokenUrl to /login
+# OAuth2 token handler — 👇 NOTE: tokenUrl="/login" must match the route below
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
-# 📦 Router
 auth_router = APIRouter()
 
-# 📌 DB session dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -29,7 +27,6 @@ def get_db():
     finally:
         db.close()
 
-# ✅ Get current user from JWT token
 def get_current_user(token: str = Depends(oauth2_scheme)):
     if not token:
         raise HTTPException(status_code=401, detail="Token missing")
@@ -45,7 +42,6 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# ✅ Signup route
 @auth_router.post("/signup")
 def signup(username: str, password: str, email: str, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter((User.username == username) | (User.email == email)).first()
@@ -59,9 +55,8 @@ def signup(username: str, password: str, email: str, db: Session = Depends(get_d
     db.refresh(user)
     return {"message": "User created successfully"}
 
-# ✅ Login route
 @auth_router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == form_data.username).first()
 
     if not user or not pwd_context.verify(form_data.password, user.password):
